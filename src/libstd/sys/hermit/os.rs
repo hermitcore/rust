@@ -140,8 +140,12 @@ pub fn env() -> Env {
 
 pub fn getenv(k: &OsStr) -> io::Result<Option<OsString>> {
     unsafe {
-        match ENV.as_ref().unwrap().lock().unwrap().get_mut(k) {
-            Some(value) => Ok(Some(value.clone())),
+        let env_ref = ENV.as_ref();
+        match env_ref {
+            Some(env_ref_unwrapped) => match env_ref_unwrapped.lock().unwrap().get_mut(k) {
+                Some(value) => Ok(Some(value.clone())),
+                None => Ok(None),
+            },
             None => Ok(None),
         }
     }
